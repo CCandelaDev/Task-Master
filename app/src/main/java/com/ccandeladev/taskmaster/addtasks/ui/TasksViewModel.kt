@@ -41,7 +41,13 @@ class TasksViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onCheckBoxChange(taskModel: TaskModel) {
+        val index = _tasks.indexOf(taskModel)//busco el indice
+        //Cojo la posición y crea mismo objeto con el valor selected cambado(click checBox)
+        _tasks[index] = _tasks[index].let { it.copy(selected = !it.selected) }
 
+        //let es una función de extensión que se utiliza para ejecutar un bloque de código
+        // en un contexto específico y devolver el resultado de la última expresión
+        // dentro de ese bloque
     }
 
 }
