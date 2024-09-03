@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
@@ -26,29 +25,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.ccandeladev.taskmaster.ui.theme.TaskMasterTheme
 
 @Composable
-fun TasksScreen() {
+fun TasksScreen(tasksViewModel: TasksViewModel) {
+
+    val showDialog = tasksViewModel.showDialog
+
     Box(Modifier.fillMaxSize()) {
-        FabDialog(Modifier.align(Alignment.BottomEnd))
-        AddTasksDialog(show = true, onDismiss = {}, onTaskAdded = {})
+        FabDialog(Modifier.align(Alignment.BottomEnd), tasksViewModel)
+        AddTasksDialog(
+            show = showDialog,
+            onDismiss = { tasksViewModel.onDialogClose() },
+            onTaskAdded = { tasksViewModel.onTaskCreate(it) })
     }
 }
 
 
 @Composable
-fun FabDialog(modifier: Modifier) {
+fun FabDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
 
     //Al pulsar se muestra el dialogo
     SmallFloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = {
+            //Mostrar dialogo
+            tasksViewModel.onShowDialogClick()
+        },
         modifier = modifier
-            .padding(18.dp),
+            .padding(bottom = 50.dp, end = 20.dp),
         shape = RoundedCornerShape(20.dp),
         containerColor = Color.White
     ) {
@@ -59,7 +65,7 @@ fun FabDialog(modifier: Modifier) {
 /**
  * @param show mostar o ocultar el dialogo
  * @param onDismiss hace que se oculte al pulsar fuera
- * @param onTaskAdded Para devolver una string y crear la tarea
+ * @param onTaskAdded Para crear la tarea (devuelve String)
  */
 @Composable
 fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -> Unit) {
@@ -69,11 +75,11 @@ fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -
     }
 
     if (show) {
-        Dialog(onDismissRequest = { onDismiss }) {
+        Dialog(onDismissRequest = { onDismiss() }) {
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Color.Cyan)
                     .padding(16.dp)
             ) {
                 Text(
@@ -104,10 +110,3 @@ fun AddTasksDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) -
 }
 
 
-@Preview
-@Composable
-fun Preview() {
-    TaskMasterTheme {
-        TasksScreen()
-    }
-}
