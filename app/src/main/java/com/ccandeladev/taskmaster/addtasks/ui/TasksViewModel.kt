@@ -50,4 +50,10 @@ class TasksViewModel @Inject constructor() : ViewModel() {
         // dentro de ese bloque
     }
 
+    fun onItemRemove(taskModel: TaskModel) {
+            val task = _tasks.find{it.id == taskModel.id}
+        //Busca en las tareas, la tarea con el id(tasModel.id) que le paso dentro del listado de ids(it.id)
+        _tasks.remove(task)
+    }
+
 }
