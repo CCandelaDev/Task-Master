@@ -11,7 +11,7 @@ import javax.inject.Singleton
 class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
 
 
-    //OJO: wuien llame a esto es el dominio y no deberia conocer lo que hay en data
+    //OJO: wuien llama a esto es el dominio y no deberia conocer lo que hay en data
     //No le pasamos TaskEntity sino TaskMOdel --> hay que hacer un mapeo
 
     val tasks: Flow<List<TaskModel>> = taskDao.getTasks()
