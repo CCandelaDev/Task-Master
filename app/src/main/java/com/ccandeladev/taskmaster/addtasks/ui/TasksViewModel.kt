@@ -6,10 +6,29 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ccandeladev.taskmaster.addtasks.domain.AddTaskUseCase
+import com.ccandeladev.taskmaster.addtasks.domain.GetTasksUseCase
+import com.ccandeladev.taskmaster.addtasks.ui.TasksUiState.Success
 import com.ccandeladev.taskmaster.ui.model.TaskModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class TasksViewModel @Inject constructor() : ViewModel() {
+class TasksViewModel @Inject constructor(
+    private val addTaskUseCase: AddTaskUseCase,
+    getTasksUseCase: GetTasksUseCase
+) : ViewModel() {
+
+    // StateFlow---> consume nuestros estados de uso---> injecto casos de uso
+    val uiState: StateFlow<TasksUiState> = getTasksUseCase().map(::Success)
+        .catch { TasksUiState.Error(it) } //sI FALLA
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TasksUiState.Loading)
+    //Coje contenido StateFlow y por cada uno lo convierte en un success(ver video)
 
     var showDialog by mutableStateOf(false)
         private set
@@ -31,8 +50,11 @@ class TasksViewModel @Inject constructor() : ViewModel() {
         showDialog = false // Close Dialog
         _tasks.add(TaskModel(taskString = task))
 
+        //Flujo de datos
+        viewModelScope.launch {
+            addTaskUseCase(TaskModel(taskString = task))
+        }
 
-        //Log.i("CAYE", "Prueba Task")
     }
 
     //Function to show dialog when click
@@ -51,7 +73,7 @@ class TasksViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onItemRemove(taskModel: TaskModel) {
-            val task = _tasks.find{it.id == taskModel.id}
+        val task = _tasks.find { it.id == taskModel.id }
         //Busca en las tareas, la tarea con el id(tasModel.id) que le paso dentro del listado de ids(it.id)
         _tasks.remove(task)
     }
