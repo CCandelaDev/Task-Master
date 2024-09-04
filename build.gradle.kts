@@ -4,4 +4,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false
     //DaggerHilt
     id("com.google.dagger.hilt.android") version "2.48" apply false
+    //KSP
+    id("com.google.devtools.ksp") version "1.8.10-1.0.9" apply false
 }

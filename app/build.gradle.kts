@@ -4,6 +4,8 @@ plugins {
     //DaggerHilt
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    //KSP
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -60,6 +62,14 @@ dependencies {
 
     //Live data
     implementation(libs.androidx.runtime.livedata)
+
+    //Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //KSP
+    //ksp("androidx.room:room-compiler:2.6.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
