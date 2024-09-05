@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ccandeladev.taskmaster.addtasks.domain.AddTaskUseCase
+import com.ccandeladev.taskmaster.addtasks.domain.DeleteTaskUseCase
 import com.ccandeladev.taskmaster.addtasks.domain.GetTasksUseCase
 import com.ccandeladev.taskmaster.addtasks.domain.UpdateTaskUseCase
 import com.ccandeladev.taskmaster.addtasks.ui.TasksUiState.Success
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class TasksViewModel @Inject constructor(
     private val addTaskUseCase: AddTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     getTasksUseCase: GetTasksUseCase
 ) : ViewModel() {
 
@@ -86,6 +88,11 @@ class TasksViewModel @Inject constructor(
 //        val task = _tasks.find { it.id == taskModel.id }
 //        //Busca en las tareas, la tarea con el id(tasModel.id) que le paso dentro del listado de ids(it.id)
 //        _tasks.remove(task)
+
+        viewModelScope.launch {
+            deleteTaskUseCase(taskModel = taskModel)
+            //Sabe la que hay que borrar por @PrimaryKey --> es única
+        }
     }
 
 }

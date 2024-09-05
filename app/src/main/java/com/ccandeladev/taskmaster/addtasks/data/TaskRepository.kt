@@ -25,7 +25,18 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
 
 
     suspend fun update(taskModel: TaskModel) {
-            taskDao.updateTask(TaskEntity(taskModel.id, taskModel.taskString, taskModel.selected))
+        taskDao.updateTask(TaskEntity(taskModel.id, taskModel.taskString, taskModel.selected))
     }
 
+    suspend fun delete(taskModel: TaskModel) {
+        //taskDao.deleteTask(TaskEntity(taskModel.id, taskModel.taskString, taskModel.selected))
+        taskDao.deleteTask(taskModel.toData())  //--> Aplicando funcion extensión
+    }
+
+}
+
+
+//Funcion extensión
+fun TaskModel.toData(): TaskEntity {
+    return TaskEntity(this.id, this.taskString, this.selected)
 }
