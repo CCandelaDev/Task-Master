@@ -11,6 +11,7 @@ import com.ccandeladev.taskmaster.addtasks.domain.AddTaskUseCase
 import com.ccandeladev.taskmaster.addtasks.domain.GetTasksUseCase
 import com.ccandeladev.taskmaster.addtasks.ui.TasksUiState.Success
 import com.ccandeladev.taskmaster.ui.model.TaskModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+@HiltViewModel
 class TasksViewModel @Inject constructor(
     private val addTaskUseCase: AddTaskUseCase,
     getTasksUseCase: GetTasksUseCase
@@ -33,8 +34,8 @@ class TasksViewModel @Inject constructor(
     var showDialog by mutableStateOf(false)
         private set
 
-    private val _tasks = mutableStateListOf<TaskModel>()
-    val task: List<TaskModel> = _tasks
+//    private val _tasks = mutableStateListOf<TaskModel>()
+//    val task: List<TaskModel> = _tasks
 
 
     //Function for close onDismiss
@@ -48,7 +49,7 @@ class TasksViewModel @Inject constructor(
      */
     fun onTaskCreate(task: String) {
         showDialog = false // Close Dialog
-        _tasks.add(TaskModel(taskString = task))
+        //_tasks.add(TaskModel(taskString = task))--> Ya no sirve con el Flow
 
         //Flujo de datos
         viewModelScope.launch {
@@ -63,19 +64,21 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onCheckBoxChange(taskModel: TaskModel) {
-        val index = _tasks.indexOf(taskModel)//busco el indice
-        //Cojo la posición y crea mismo objeto con el valor selected cambado(click checBox)
-        _tasks[index] = _tasks[index].let { it.copy(selected = !it.selected) }
-
-        //let es una función de extensión que se utiliza para ejecutar un bloque de código
-        // en un contexto específico y devolver el resultado de la última expresión
-        // dentro de ese bloque
+        //ACTUALIZAR CHECK
+//        val index = _tasks.indexOf(taskModel)//busco el indice
+//        //Cojo la posición y crea mismo objeto con el valor selected cambado(click checBox)
+//        _tasks[index] = _tasks[index].let { it.copy(selected = !it.selected) }
+//
+//        //let es una función de extensión que se utiliza para ejecutar un bloque de código
+//        // en un contexto específico y devolver el resultado de la última expresión
+//        // dentro de ese bloque
     }
 
     fun onItemRemove(taskModel: TaskModel) {
-        val task = _tasks.find { it.id == taskModel.id }
-        //Busca en las tareas, la tarea con el id(tasModel.id) que le paso dentro del listado de ids(it.id)
-        _tasks.remove(task)
+        //BORRAR ITEM
+//        val task = _tasks.find { it.id == taskModel.id }
+//        //Busca en las tareas, la tarea con el id(tasModel.id) que le paso dentro del listado de ids(it.id)
+//        _tasks.remove(task)
     }
 
 }

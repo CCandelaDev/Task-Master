@@ -2,7 +2,6 @@ package com.ccandeladev.taskmaster.addtasks.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
@@ -28,16 +28,20 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.ccandeladev.taskmaster.ui.model.TaskModel
 
 @Composable
@@ -45,30 +49,54 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
 
     val showDialog = tasksViewModel.showDialog
 
-    Box(Modifier.fillMaxSize()) {
-        FabDialog(Modifier.align(Alignment.BottomEnd), tasksViewModel)
+    val lifeCycle = LocalLifecycleOwner.current.lifecycle
 
-        AddTasksDialog(
-            show = showDialog,
-            onDismiss = { tasksViewModel.onDialogClose() },
-            onTaskAdded = { tasksViewModel.onTaskCreate(it) })
-
-        TasksList(tasksViewModel)
+    val uiState by produceState<TasksUiState>(
+        initialValue = TasksUiState.Loading,
+        key1 = lifeCycle,
+        key2 = tasksViewModel
+    ) {
+        lifeCycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            tasksViewModel.uiState.collect { value = it }
+        }
     }
+
+    when (uiState) {
+        is TasksUiState.Error -> {}
+        TasksUiState.Loading -> {
+            CircularProgressIndicator()
+        }
+
+        is TasksUiState.Success -> {
+            Box(Modifier.fillMaxSize()) {
+                FabDialog(Modifier.align(Alignment.BottomEnd), tasksViewModel)
+
+                AddTasksDialog(
+                    show = showDialog,
+                    onDismiss = { tasksViewModel.onDialogClose() },
+                    onTaskAdded = { tasksViewModel.onTaskCreate(it) })
+
+                //TasksList(tasksViewModel)
+                TasksList((uiState as TasksUiState.Success).task, tasksViewModel)
+            }
+        }
+    }
+
+
 }
 
 /**
  * Function to list the tasks
  */
 @Composable
-fun TasksList(tasksViewModel: TasksViewModel) {
+fun TasksList(task: List<TaskModel>, tasksViewModel: TasksViewModel) {
 
-    val myTaskList: List<TaskModel> = tasksViewModel.task
+    //val myTaskList: List<TaskModel> = tasksViewModel.task --> Lo sustituye el flow-->los datos son los de la BD
 
     LazyColumn {
-        items(items = myTaskList, key = { it.id }) { task ->
+        items(task, key = { it.id }) { task ->
+            // ItemTask(taskModel = task, tasksViewModel = tasksViewModel)
             ItemTask(taskModel = task, tasksViewModel = tasksViewModel)
-
         }
 
     }
@@ -81,7 +109,7 @@ fun ItemTask(taskModel: TaskModel, tasksViewModel: TasksViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .pointerInput(Unit){
+            .pointerInput(Unit) {
                 detectTapGestures(onLongPress = {
                     tasksViewModel.onItemRemove(taskModel)
                 })
