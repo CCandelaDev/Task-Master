@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ccandeladev.taskmaster.addtasks.domain.AddTaskUseCase
 import com.ccandeladev.taskmaster.addtasks.domain.GetTasksUseCase
+import com.ccandeladev.taskmaster.addtasks.domain.UpdateTaskUseCase
 import com.ccandeladev.taskmaster.addtasks.ui.TasksUiState.Success
 import com.ccandeladev.taskmaster.ui.model.TaskModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,9 +20,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val addTaskUseCase: AddTaskUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
     getTasksUseCase: GetTasksUseCase
 ) : ViewModel() {
 
@@ -72,6 +75,10 @@ class TasksViewModel @Inject constructor(
 //        //let es una función de extensión que se utiliza para ejecutar un bloque de código
 //        // en un contexto específico y devolver el resultado de la última expresión
 //        // dentro de ese bloque
+
+        viewModelScope.launch {
+            updateTaskUseCase(taskModel.copy(selected = !taskModel.selected))
+        }//copy--> copia el objeto y modifico solo selected al valor contrario
     }
 
     fun onItemRemove(taskModel: TaskModel) {
